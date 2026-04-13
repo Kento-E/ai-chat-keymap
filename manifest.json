@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AI Chat Keymap",
-  "description": "ChatGPT, Claude, GeminiでのEnterキー動作を変更: Enter/Shift+Enter→改行、Cmd/Ctrl+Enter→送信",
+  "description": "ChatGPT, Claude, Gemini, GitHub CopilotでのEnterキー動作を変更: Enter/Shift+Enter→改行、Cmd/Ctrl+Enter→送信",
   "version": "1.0.0",
   "icons": {
     "16": "icons/icon16.png",
@@ -14,7 +14,8 @@
         "https://chatgpt.com/*",
         "https://chat.openai.com/*",
         "https://claude.ai/*",
-        "https://gemini.google.com/*"
+        "https://gemini.google.com/*",
+        "https://github.com/copilot*"
       ],
       "js": ["content.js"],
       "run_at": "document_idle"

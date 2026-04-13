@@ -5,8 +5,10 @@
   const isChatGPT = hostname === 'chatgpt.com' || hostname === 'chat.openai.com';
   const isClaude = hostname === 'claude.ai';
   const isGemini = hostname === 'gemini.google.com';
+  const isGitHubCopilot =
+    hostname === 'github.com' && window.location.pathname.startsWith('/copilot');
 
-  if (!isChatGPT && !isClaude && !isGemini) return;
+  if (!isChatGPT && !isClaude && !isGemini && !isGitHubCopilot) return;
 
   /**
    * Walk the event's composed path (handles shadow DOM) and return the first
@@ -35,6 +37,9 @@
       // Gemini
       '[aria-label="Send message"]',
       'button.send-button',
+      // GitHub Copilot Chat
+      'button[data-testid="copilot-chat-send-button"]',
+      'button[aria-label="Send"]',
     ];
     for (const sel of selectors) {
       const el = document.querySelector(sel);
@@ -85,6 +90,9 @@
 
   function handleKeydown(event) {
     if (event.key !== 'Enter') return;
+
+    // IME変換中（日本語入力など）のEnterは無視して通常動作させる
+    if (event.isComposing) return;
 
     // Ignore synthetic events we dispatched ourselves (isTrusted === false)
     // to avoid infinite loops in the contenteditable path.
