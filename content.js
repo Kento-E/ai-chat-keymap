@@ -11,8 +11,8 @@
   if (!isChatGPT && !isClaude && !isGemini && !isGitHubCopilot) return;
 
   /**
-   * Walk the event's composed path (handles shadow DOM) and return the first
-   * editable element: a <textarea> or a contenteditable element.
+   * イベントの composedPath を辿り（Shadow DOM 対応）、
+   * 最初に見つかった編集可能要素（<textarea> または contenteditable 要素）を返す。
    */
   function getInputElement(event) {
     for (const el of event.composedPath()) {
@@ -24,8 +24,8 @@
   }
 
   /**
-   * Try to locate the send/submit button for the current site.
-   * Selectors are listed from most-specific to most-generic.
+   * 現在のサイトに対応する送信ボタンを探して返す。
+   * セレクターは具体的なものから汎用的なものの順に並べている。
    */
   function findSubmitButton() {
     const selectors = [
@@ -49,13 +49,13 @@
   }
 
   /**
-   * Insert a newline at the current caret position inside an editable element.
+   * キャレット位置に改行を挿入する。
    *
-   * - <textarea>: directly mutate the value (using the native setter so that
-   *   React/framework state stays in sync) and fire an `input` event.
-   * - contenteditable: dispatch a Shift+Enter keydown so the rich-text editor
-   *   (ProseMirror on Claude, Quill on Gemini, etc.) handles it natively and
-   *   inserts its own "hard break".
+   * - <textarea>: ネイティブセッターで value を直接書き換え（React の state と同期するため）、
+   *   `input` イベントを発火する。
+   * - contenteditable: Shift+Enter の keydown イベントをディスパッチし、
+   *   リッチテキストエディタ（Claude は ProseMirror、Gemini は Quill など）に
+   *   改行処理を委ねる。
    */
   function insertNewline(inputEl) {
     if (inputEl instanceof HTMLTextAreaElement) {
@@ -69,11 +69,10 @@
       inputEl.selectionStart = inputEl.selectionEnd = s + 1;
       inputEl.dispatchEvent(new Event('input', { bubbles: true }));
     } else {
-      // Dispatch Shift+Enter onto the contenteditable so the editor's own
-      // key-handler inserts the appropriate line break.
-      // isTrusted will be false on this synthetic event, so our capture
-      // listener (which guards with `!event.isTrusted`) will ignore it and
-      // let it reach the editor's handler without looping.
+      // contenteditable に Shift+Enter をディスパッチして、エディタ自身の
+      // キーハンドラに改行処理を委ねる。
+      // この合成イベントは isTrusted === false になるため、キャプチャリスナーの
+      // `!event.isTrusted` ガードにより再インターセプトされず、無限ループを防ぐ。
       inputEl.dispatchEvent(
         new KeyboardEvent('keydown', {
           key: 'Enter',
@@ -94,22 +93,22 @@
     // IME変換中（日本語入力など）のEnterは無視して通常動作させる
     if (event.isComposing) return;
 
-    // Ignore synthetic events we dispatched ourselves (isTrusted === false)
-    // to avoid infinite loops in the contenteditable path.
+    // 自分でディスパッチした合成イベント（isTrusted === false）は無視し、
+    // contenteditable パスでの無限ループを防ぐ。
     if (!event.isTrusted) return;
 
     const inputEl = getInputElement(event);
     if (!inputEl) return;
 
     if (event.metaKey || event.ctrlKey) {
-      // Cmd/Ctrl + Enter → submit the message
+      // Cmd/Ctrl + Enter → メッセージを送信
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
       const btn = findSubmitButton();
       if (btn) btn.click();
     } else {
-      // Plain Enter or Shift+Enter → insert a newline
+      // 通常 Enter または Shift+Enter → 改行を挿入
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
@@ -117,6 +116,6 @@
     }
   }
 
-  // Capture phase ensures our handler fires before the site's own listeners.
+  // キャプチャフェーズで登録することで、サイト独自のリスナーより先に発火させる。
   document.addEventListener('keydown', handleKeydown, true);
 })();
