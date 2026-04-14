@@ -15,7 +15,8 @@
         "https://chat.openai.com/*",
         "https://claude.ai/*",
         "https://gemini.google.com/*",
-        "https://github.com/copilot*"
+        "https://github.com/copilot",
+        "https://github.com/copilot/*"
       ],
       "js": ["content.js"],
       "run_at": "document_start"
