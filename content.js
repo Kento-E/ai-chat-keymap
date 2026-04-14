@@ -6,7 +6,7 @@
   const isClaude = hostname === 'claude.ai';
   const isGemini = hostname === 'gemini.google.com';
   const isGitHubCopilot =
-    hostname === 'github.com' && window.location.pathname.startsWith('/copilot');
+    hostname === 'github.com' && /^\/copilot(?:\/|$)/.test(window.location.pathname);
 
   if (!isChatGPT && !isClaude && !isGemini && !isGitHubCopilot) return;
 
