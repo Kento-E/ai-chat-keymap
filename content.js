@@ -103,14 +103,12 @@
     if (event.metaKey || event.ctrlKey) {
       // Cmd/Ctrl + Enter → メッセージを送信
       event.preventDefault();
-      event.stopPropagation();
       event.stopImmediatePropagation();
       const btn = findSubmitButton();
       if (btn) btn.click();
     } else {
       // 通常 Enter または Shift+Enter → 改行を挿入
       event.preventDefault();
-      event.stopPropagation();
       event.stopImmediatePropagation();
       insertNewline(inputEl);
     }
