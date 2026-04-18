@@ -27,13 +27,34 @@
    * 現在のサイトに対応する送信ボタンを探して返す。
    * セレクターは具体的なものから汎用的なものの順に並べている。
    */
-  function findSubmitButton() {
+  function findSubmitButton(inputEl) {
+    // まずは入力欄に近いコンテキスト（form）を優先して探索する。
+    const form = inputEl?.closest?.('form');
+    if (form) {
+      const scopedSelectors = [
+        'button[type="submit"]',
+        'button[aria-label="Send Message"]',
+        'button[aria-label="Send message"]',
+        'button[aria-label="メッセージを送信"]',
+        'button[aria-label*="送信"]',
+        'button[aria-label="Send"]',
+        'button[data-testid="send-button"]',
+        'button[data-testid="copilot-chat-send-button"]',
+      ];
+      for (const sel of scopedSelectors) {
+        const el = form.querySelector(sel);
+        if (el) return el;
+      }
+    }
+
     const selectors = [
       // ChatGPT
       'button[data-testid="send-button"]',
       // Claude
       'button[aria-label="Send Message"]',
       'button[aria-label="Send message"]',
+      'button[aria-label="メッセージを送信"]',
+      'button[aria-label*="送信"]',
       // Gemini
       '[aria-label="Send message"]',
       'button.send-button',
@@ -46,6 +67,27 @@
       if (el) return el;
     }
     return null;
+  }
+
+  function submitMessage(inputEl) {
+    const btn = findSubmitButton(inputEl);
+    if (btn && !btn.disabled && btn.getAttribute('aria-disabled') !== 'true') {
+      btn.click();
+      return true;
+    }
+
+    // Claude を含む一部サイトでは form submit の方が安定する場合がある。
+    const form = inputEl?.closest?.('form');
+    if (form) {
+      if (typeof form.requestSubmit === 'function') {
+        form.requestSubmit();
+      } else {
+        form.submit();
+      }
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -104,8 +146,7 @@
       // Cmd/Ctrl + Enter → メッセージを送信
       event.preventDefault();
       event.stopImmediatePropagation();
-      const btn = findSubmitButton();
-      if (btn) btn.click();
+      submitMessage(inputEl);
     } else {
       // 通常 Enter または Shift+Enter → 改行を挿入
       event.preventDefault();
